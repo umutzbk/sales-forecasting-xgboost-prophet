@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/banner.png" alt="Daily sales forecasting: XGBoost feature engineering vs. Prophet"></p>
+
 # Daily Sales Forecasting: XGBoost Feature Engineering vs. Prophet
 
 A 90-day forecast for a daily sales series, built up iteratively to show what each family of
@@ -8,7 +10,10 @@ time-series features contributes, and then benchmarked against Prophet.
 ## The data
 
 A synthetic daily series from January 2021 to June 2024, generated in the notebook with a fixed
-seed: linear growth, weekly and yearly seasonality, noise, and zero-sales holiday / closure days.
+seed: linear growth, weekly and yearly seasonality, noise, 50 promotion days and 20 zero-sales
+stock-out days.
+
+<p align="center"><img src="assets/series.png" alt="The synthetic daily sales series with trend, yearly seasonality, promotion days and stock-out days marked" width="100%"></p>
 
 ## Iterations
 
@@ -20,6 +25,15 @@ seed: linear growth, weekly and yearly seasonality, noise, and zero-sales holida
 | 3 | 7-day rolling mean/std + cyclical seasonality | the **MA** component; last year's pattern is tracked better |
 | 4 | 365-day lag + last-year-zero flag | lets the model anticipate recurring closure days |
 | 5 | **Prophet** | smooth trend with explicit weekly and yearly seasonality |
+
+<p align="center"><img src="assets/iterations.png" alt="Six 90-day forecasts, one per iteration, against the last six months of history" width="100%"></p>
+<p align="center"><sub>History regenerated from the seed; forecasts traced from the notebook's own plots, so the shapes are the notebook's results redrawn in one style.</sub></p>
+
+The cliff at the start of steps 3 and 4 is a feature-construction bug worth showing rather
+than hiding: the future lag and rolling features are computed only from forecasts inside the
+90-day window, never from the last real observations, so the 30-day lag is empty for the
+whole first month and the model under-forecasts until it fills. Seeding the future features
+from the tail of the history is the fix.
 
 ## Takeaways
 
